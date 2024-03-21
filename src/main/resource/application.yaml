@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: api-auth
+
+management:
+  endpoints:
+    web:
+      base-path: /auth/actuator
+      exposure:
+        include: [ 'prometheus' ]
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+
+api:
+  jwt:
+    issuer: "In5pEr"
+    secretKey: "nPeHcqPFhcHhy9fIEgjYSEWBQaNhVtyYKqo1jR97H23x75qI8Tj33c5AZumnPsoF8QRLjxfC5bgKoK5uHqNmSffMjm2qQXMghW4ju4zrMxAx9Dlpq83HGgo05H8QEuue"
+    duration: 31536000000 # 365 days in miliseconds
