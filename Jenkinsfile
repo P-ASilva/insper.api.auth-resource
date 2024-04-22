@@ -6,6 +6,12 @@ pipeline {
                 build job: 'api.auth', wait: true
             }
         }
+
+        stage('Build') { 
+            steps {
+                sh 'mvn clean package'
+            }
+        }   
   
         stage('Build Image') {
             steps {
