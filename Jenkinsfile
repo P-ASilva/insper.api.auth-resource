@@ -1,6 +1,12 @@
 pipeline {
     agent any
     stages {
+        stage('Build Account') {
+            steps {
+                build job: 'api.account', wait: true
+            }
+        }
+
         stage('Build Auth') {
             steps {
                 build job: 'api.auth', wait: true
