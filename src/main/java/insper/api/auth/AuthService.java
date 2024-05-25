@@ -8,6 +8,7 @@ import insper.api.account.AccountController;
 import insper.api.account.AccountIn;
 import insper.api.account.AccountOut;
 import insper.api.account.LoginIn;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @Service
 public class AuthService {
@@ -19,6 +20,7 @@ public class AuthService {
     private JwtService jwtService;
 
     @SuppressWarnings("null")
+    @CircuitBreaker(name = "authService", fallbackMethod = "fallbackRegister")
     public String register(Register in) {
         final String password = in.password().trim();
         if (null == password || password.isEmpty()) throw new IllegalArgumentException("Password is required");
@@ -35,6 +37,7 @@ public class AuthService {
         return response.getBody().id();
     }
 
+    @CircuitBreaker(name = "authService", fallbackMethod = "fallbackAuthenticate")
     public LoginOut authenticate(String email, String password) {
         ResponseEntity<AccountOut> response = accountController.login(LoginIn.builder()
             .email(email)
@@ -54,8 +57,29 @@ public class AuthService {
             .build();
     }
 
+    @CircuitBreaker(name = "authService", fallbackMethod = "fallbackSolve")
     public Token solve(String token) {
         return jwtService.getToken(token);
     }
-    
+
+    // Métodos de fallback
+    public String fallbackRegister(Register in, Throwable t) {
+        // Lógica de fallback para register
+        System.out.println("Fallback register method triggered: " + t.getMessage());
+        return "fallback-register";
+    }
+
+    public LoginOut fallbackAuthenticate(String email, String password, Throwable t) {
+        // Lógica de fallback para authenticate
+        System.out.println("Fallback authenticate method triggered: " + t.getMessage());
+        return LoginOut.builder()
+            .token("fallback-token")
+            .build();
+    }
+
+    public Token fallbackSolve(String token, Throwable t) {
+        // Lógica de fallback para solve
+        System.out.println("Fallback solve method triggered: " + t.getMessage());
+        return new Token("fallback-token");
+    }
 }
